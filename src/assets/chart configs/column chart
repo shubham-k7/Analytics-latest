@@ -67,6 +67,14 @@
 			dataLabels: {
 				enabled: true,
 				format: '%format%'
+			},
+			cursor: 'pointer',
+			point: {
+				events: {
+					click: function() {
+						comp.getSirwalaChart(this.category);
+					}
+				}
 			}
 		},
 		column: {

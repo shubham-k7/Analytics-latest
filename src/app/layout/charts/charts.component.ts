@@ -49,18 +49,23 @@ export class ChartsComponent implements OnInit {
 		console.log(payload);
 		return payload;
 	}
-	public getChartData(event: any,chartid: string): void {
-		var comp=this,t;
-		var x = chartid.split('-').slice(0,2);
-		var kpi_name = x[0];
-		var version_id = x[1];
-		t = this.kpilist[kpi_name][chartid]._drilldowns.length;
-		var list = this.kpilist[kpi_name][chartid]._drilldowns.slice(1,t+1);
-		list.push(event.point.name);
-		let chartConfigs = this.kpilist[kpi_name][chartid];
-		// PAYLOAD for charts, name is a list of filters for charts
-		var payload = {name: list,
-					series_name: event.point.series.name,
+
+	getSirwalaChart(event: any,chartid: string) {
+		let comp = this,
+			temp = chartid.split('-'),
+			kpi_name = temp[0],
+			version_id = temp[1],
+			chartConfigs = this.kpilist[kpi_name][chartid],
+			t = this.kpilist[kpi_name][chartid]._drilldowns.length;
+			var list = this.kpilist[kpi_name][chartid]._drilldowns.slice(1,t+1);
+			list.push(event.name);
+			// t = this.kpilist[kpi_name][chartid]._drilldowns;
+			chartConfigs._drilldowns.push(event.name);
+			// chartConfigs._chart.showLoading();
+		console.log(event);
+		let payload = {
+					name: list,
+					series_name: event.series.name,
 					report_type: t.toString(),
 					chartName: chartid,
 					version_ids: [version_id],
@@ -71,7 +76,51 @@ export class ChartsComponent implements OnInit {
 					sDate: chartConfigs._sDate,
 					eDate: chartConfigs._eDate,
 					divisions: chartConfigs._divisions
-					};
+		}
+		console.log(payload);
+		chartConfigs._chart.showLoading();
+		this.chartDataService.getChartData(payload).subscribe(series => {
+			var chart = this.kpilist[payload.kpi_id][chartid]._chart;
+			chart.hideLoading();
+			while(chart.series.length > 0){
+				chart.series[0].remove();
+			}
+			console.log(series);
+			for(var i=0; i <series.length;i++)
+				chart.addSeries(series[i]);
+		},
+		(err) => {
+			alert(err);
+			this.kpilist[payload.kpi_id][payload.chartName]._chart.hideLoading();
+		});
+		/*var comp = this,t;
+		var x = chartid.split('-')*/
+
+	}
+	getChartData(event: any,chartid: string): void {
+		var comp=this,t;
+		var x = chartid.split('-').slice(0,2);
+		var kpi_name = x[0];
+		var version_id = x[1];
+		t = this.kpilist[kpi_name][chartid]._drilldowns.length;
+		var list = this.kpilist[kpi_name][chartid]._drilldowns.slice(1,t+1);
+		list.push(event.point.name);
+		let chartConfigs = this.kpilist[kpi_name][chartid];
+		// PAYLOAD for charts, name is a list of filters for charts
+		var payload ={
+				name: list,
+				series_name: event.point.series.name,
+				report_type: t.toString(),
+				chartName: chartid,
+				version_ids: [version_id],
+				kpi_id: kpi_name,
+				dftype: (chartConfigs._selectedvalue!==null)?chartConfigs._selectedvalue.id: 0,
+				mon: chartConfigs._mon,
+				zftype: chartConfigs._divisions,
+				sDate: chartConfigs._sDate,
+				eDate: chartConfigs._eDate,
+				divisions: chartConfigs._divisions
+			};
 		console.log(payload);
 		this.chartDataService.getChartData(payload).subscribe(series => {
 			var chart;
@@ -97,7 +146,9 @@ export class ChartsComponent implements OnInit {
 		});
 	}
 	chartInit(kpi_name: string,conf: any): string{
-		var comp = this;        // Do NOT REMOVE this. It's used inside chart confs
+		// Do NOT REMOVE this. 
+			var comp = this;        
+		// It's used inside chart confs to access ChartComponent instance
 		var data = eval('(' + conf + ')');
 		let prevConfig = this.kpilist[kpi_name][data.chart.name];
 		if(prevConfig) {
@@ -170,6 +221,9 @@ export class ChartsComponent implements OnInit {
 			chart.showLoading("Fetching Data...");
 		if(chart.insertedTable && chart.insertedTableID)
 			check = chart.insertedTableID;
+
+
+		
 
 		var payload = {	kpi_id: kpi_name,
 						version_ids: [x[1]],
