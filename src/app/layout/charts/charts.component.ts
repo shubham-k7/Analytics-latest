@@ -107,7 +107,7 @@ export class ChartsComponent implements OnInit {
 		list.push(event.point.name);
 		let chartConfigs = this.kpilist[kpi_name][chartid];
 		// PAYLOAD for charts, name is a list of filters for charts
-		var payload ={
+		var payload = {
 				name: list,
 				series_name: event.point.series.name,
 				report_type: t.toString(),
@@ -223,7 +223,27 @@ export class ChartsComponent implements OnInit {
 			check = chart.insertedTableID;
 
 
-		
+		var comp=this,t;
+		var x = chartid.split('-').slice(0,2);
+		var kpi_name = x[0];
+		var version_id = x[1];
+		t = this.kpilist[kpi_name][chartid]._drilldowns.length;
+		var list = this.kpilist[kpi_name][chartid]._drilldowns.slice(1,t+1);
+		// PAYLOAD for charts, name is a list of filters for charts
+		var payload ={
+				name: list,
+				series_name: ["Transition"],
+				report_type: t.toString(),
+				chartName: chartid,
+				version_ids: [version_id],
+				kpi_id: kpi_name,
+				dftype: (chartConfigs._selectedvalue!==null)?chartConfigs._selectedvalue.id: 0,
+				mon: chartConfigs._mon,
+				zftype: chartConfigs._divisions,
+				sDate: chartConfigs._sDate,
+				eDate: chartConfigs._eDate,
+				divisions: chartConfigs._divisions
+			};
 
 		var payload = {	kpi_id: kpi_name,
 						version_ids: [x[1]],
