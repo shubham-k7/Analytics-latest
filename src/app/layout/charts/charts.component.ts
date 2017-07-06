@@ -69,7 +69,7 @@ export class ChartsComponent implements OnInit {
 		// Wait for _divisions to remove the value on unSelect event
 		setTimeout(()=>{
 		this.setFilterflag(chartid);
-		var shallowCopy = { ...chartConfigs,_chart: null };
+		var shallowCopy = { ...chartConfigs,_chart: null,_filteredDivisions: null };
 		var payload = {
 					name: list,
 					series_name: serieslist,
@@ -105,7 +105,7 @@ export class ChartsComponent implements OnInit {
 		var list = this.kpilist[kpi_name][chartid]._drilldowns.slice(1,t+1);
 		list.push(event.point.name);
 		let chartConfigs = this.kpilist[kpi_name][chartid];
-		var shallowCopy = { ...chartConfigs,_chart:  null };
+		var shallowCopy = { ...chartConfigs,_chart:  null,_filteredDivisions: null };
 		// PAYLOAD for charts, name is a list of filters for charts
 		var payload = {
 				name: list,
@@ -214,7 +214,7 @@ export class ChartsComponent implements OnInit {
 		if(chart.insertedTable && chart.insertedTableID)
 			check = chart.insertedTableID;
 
-		var shallowCopy = { ...chartConfigs,_chart:  null };
+		var shallowCopy = { ...chartConfigs,_chart:  null,_filteredDivisions: null };
 		var payload = {	kpi_id: kpi_name,
 						version_ids: [x[1]],
 						report_type: "0",
