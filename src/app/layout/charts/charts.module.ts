@@ -30,7 +30,7 @@ import { ChartFilterService } from './chart-filter.service';
 import {AutoCompleteModule} from 'primeng/components/autocomplete/autocomplete';
 import { GrowlModule } from 'primeng/components/growl/growl';
 import { MdSelectModule,MdInputModule } from '@angular/material';
-import { Md2Module } from 'md2';
+import { Md2Module} from 'md2';
 
 @NgModule({
     imports: [

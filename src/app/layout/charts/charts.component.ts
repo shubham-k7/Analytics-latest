@@ -33,20 +33,15 @@ export class ChartsComponent implements OnInit {
 					this.myDate.months = Month;
 	}
 	getPayload(chartid: string): any {
-		// var payload = JSON.stringify({kpi_id: x[0],version_ids: [x[1]],report_type: "0",name: [],series_name: "",datef: (df)?df:null});
+		// var payload = JSON.stringify({kpi_id: x[0],version_ids: [x[1]],report_type: "0",name: [],series_name:  null,datef: (df)?df:null});
 		let kpi_name = chartid.split('-')[0],
 			chartConfigs = this.kpilist[kpi_name][chartid];
-			console.log(chartConfigs);
+		var shallowCopy = { ...chartConfigs,_chart: null };
 		let	payload = {
+
 			chartid: chartid,
-			dftype: (chartConfigs._selectedvalue!==null)?chartConfigs._selectedvalue.id: 0,
-			mon: chartConfigs._mon,
-			zftype: chartConfigs._divisions,
-			sDate: chartConfigs._sDate,
-			eDate: chartConfigs._eDate,
-			divisions: chartConfigs._divisions
+			chartConfigs: shallowCopy
 		}
-		console.log(payload);
 		return payload;
 	}
 
@@ -56,45 +51,49 @@ export class ChartsComponent implements OnInit {
 			kpi_name = temp[0],
 			version_id = temp[1],
 			chartConfigs = this.kpilist[kpi_name][chartid],
-			t = this.kpilist[kpi_name][chartid]._drilldowns.length;
-			var list = this.kpilist[kpi_name][chartid]._drilldowns.slice(1,t+1);
+			t = this.kpilist[kpi_name][chartid]._drilldowns.length,
+			list = this.kpilist[kpi_name][chartid]._drilldowns.slice(1,t+1);
+		if(event.name){
 			list.push(event.name);
-			// t = this.kpilist[kpi_name][chartid]._drilldowns;
 			chartConfigs._drilldowns.push(event.name);
-			// chartConfigs._chart.showLoading();
-		console.log(event);
-		let payload = {
+		}
+		else{
+			t--;
+		}
+
+		var ser = chartConfigs._chart.series;
+		var serieslist = [];
+		for(let s of ser){
+			serieslist.push(s.name);
+		}
+		// Wait for _divisions to remove the value on unSelect event
+		setTimeout(()=>{
+		this.setFilterflag(chartid);
+		var shallowCopy = { ...chartConfigs,_chart: null };
+		var payload = {
 					name: list,
-					series_name: event.series.name,
+					series_name: serieslist,
 					report_type: t.toString(),
 					chartName: chartid,
 					version_ids: [version_id],
 					kpi_id: kpi_name,
-					dftype: (chartConfigs._selectedvalue!==null)?chartConfigs._selectedvalue.id: 0,
-					mon: chartConfigs._mon,
-					zftype: chartConfigs._divisions,
-					sDate: chartConfigs._sDate,
-					eDate: chartConfigs._eDate,
-					divisions: chartConfigs._divisions
-		}
-		console.log(payload);
-		chartConfigs._chart.showLoading();
-		this.chartDataService.getChartData(payload).subscribe(series => {
-			var chart = this.kpilist[payload.kpi_id][chartid]._chart;
-			chart.hideLoading();
-			while(chart.series.length > 0){
-				chart.series[0].remove();
-			}
-			console.log(series);
-			for(var i=0; i <series.length;i++)
-				chart.addSeries(series[i]);
-		},
-		(err) => {
-			alert(err);
-			this.kpilist[payload.kpi_id][payload.chartName]._chart.hideLoading();
-		});
-		/*var comp = this,t;
-		var x = chartid.split('-')*/
+					chartConfigs: shallowCopy
+			};
+			console.log(payload);
+			this.chartDataService.getChartData(payload).subscribe(series => {
+				var chart = this.kpilist[payload.kpi_id][chartid]._chart;
+				chart.hideLoading();
+				while(chart.series.length > 0){
+					chart.series[0].remove();
+				}
+				for(var i=0; i <series.length;i++)
+					chart.addSeries(series[i]);
+			},
+			(err) => {
+				alert(err);
+				this.kpilist[payload.kpi_id][payload.chartName]._chart.hideLoading();
+			});
+ 		},500);
 
 	}
 	getChartData(event: any,chartid: string): void {
@@ -106,6 +105,7 @@ export class ChartsComponent implements OnInit {
 		var list = this.kpilist[kpi_name][chartid]._drilldowns.slice(1,t+1);
 		list.push(event.point.name);
 		let chartConfigs = this.kpilist[kpi_name][chartid];
+		var shallowCopy = { ...chartConfigs,_chart:  null };
 		// PAYLOAD for charts, name is a list of filters for charts
 		var payload = {
 				name: list,
@@ -114,14 +114,14 @@ export class ChartsComponent implements OnInit {
 				chartName: chartid,
 				version_ids: [version_id],
 				kpi_id: kpi_name,
-				dftype: (chartConfigs._selectedvalue!==null)?chartConfigs._selectedvalue.id: 0,
+				/*dftype: (chartConfigs._selectedvalue!==null)?chartConfigs._selectedvalue.id: 0,
 				mon: chartConfigs._mon,
-				zftype: chartConfigs._divisions,
 				sDate: chartConfigs._sDate,
 				eDate: chartConfigs._eDate,
-				divisions: chartConfigs._divisions
+				divisions: chartConfigs._divisions,
+				filter: chartConfigs._filter*/
+				chartConfigs: shallowCopy
 			};
-		console.log(payload);
 		this.chartDataService.getChartData(payload).subscribe(series => {
 			var chart;
 			chart = comp.kpilist[payload.kpi_id][chartid]._chart;
@@ -152,16 +152,7 @@ export class ChartsComponent implements OnInit {
 		var data = eval('(' + conf + ')');
 		let prevConfig = this.kpilist[kpi_name][data.chart.name];
 		if(prevConfig) {
-			this.kpilist[kpi_name][data.chart.name] = {		_chart:  null,
-															_drilldowns: prevConfig._drilldowns,
-															_selectedvalue: prevConfig._selectedvalue,
-															_maxDate: prevConfig._maxDate,
-															_mon: prevConfig._mon,
-															_sDate: prevConfig._sDate,
-															_eDate: prevConfig._eDate,
-															_divisions: prevConfig._divisions,
-															_filteredDivisions: prevConfig._filteredDivisions
-														};
+			this.kpilist[kpi_name][data.chart.name] = {...prevConfig,_chart: null};
 		}
 		else{
 			this.kpilist[kpi_name][data.chart.name] = {	_chart:  null,
@@ -172,10 +163,11 @@ export class ChartsComponent implements OnInit {
 													_sDate: null,
 													_eDate: null,
 													_divisions: null,
-													_filteredDivisions: null
+													_filteredDivisions: null,
+													_filter: null
 												};									
 		}
-		console.log(this.kpilist);
+		// console.log(this.kpilist);
 		var chart = new Highcharts.Chart(data);
 		this.kpilist[kpi_name][data.chart.name]._chart = chart;
 		chart.options.drilldown.activeDataLabelStyle = { "cursor": "pointer", "color": "#003399", "fontWeight": "bold", "textDecoration": "!none","text-transform": "uppercase" };
@@ -222,40 +214,13 @@ export class ChartsComponent implements OnInit {
 		if(chart.insertedTable && chart.insertedTableID)
 			check = chart.insertedTableID;
 
-
-		var comp=this,t;
-		var x = chartid.split('-').slice(0,2);
-		var kpi_name = x[0];
-		var version_id = x[1];
-		t = this.kpilist[kpi_name][chartid]._drilldowns.length;
-		var list = this.kpilist[kpi_name][chartid]._drilldowns.slice(1,t+1);
-		// PAYLOAD for charts, name is a list of filters for charts
-		var payload ={
-				name: list,
-				series_name: ["Transition"],
-				report_type: t.toString(),
-				chartName: chartid,
-				version_ids: [version_id],
-				kpi_id: kpi_name,
-				dftype: (chartConfigs._selectedvalue!==null)?chartConfigs._selectedvalue.id: 0,
-				mon: chartConfigs._mon,
-				zftype: chartConfigs._divisions,
-				sDate: chartConfigs._sDate,
-				eDate: chartConfigs._eDate,
-				divisions: chartConfigs._divisions
-			};
-
+		var shallowCopy = { ...chartConfigs,_chart:  null };
 		var payload = {	kpi_id: kpi_name,
 						version_ids: [x[1]],
 						report_type: "0",
 						name: [],
-						series_name: "",
-						dftype: (chartConfigs._selectedvalue!==null)?chartConfigs._selectedvalue.id: 0,
-						mon: chartConfigs._mon,
-						zftype: chartConfigs._divisions,
-						sDate: chartConfigs._sDate,
-						eDate: chartConfigs._eDate,
-						divisions: chartConfigs._divisions
+						series_name:  null,
+						chartConfigs: shallowCopy
 					}
 		this.chartDataService.getChart(payload).subscribe(data => {
 			var series = data[0].data;
@@ -278,15 +243,38 @@ export class ChartsComponent implements OnInit {
 		}
 		);
 	}
-	check(event: any) {
+	setFilterflag(chartid: string) {
+		let kpi_name = chartid.split('-')[0],
+			chartConfigs = this.kpilist[kpi_name][chartid];
+		chartConfigs._filter = null;
+		console.log(chartConfigs);
+		if(chartConfigs._selectedvalue && chartConfigs._selectedvalue.id!==0 && (chartConfigs._mon || chartConfigs._eDate || chartConfigs._sDate))
+		{
+			console.log("1");
+			chartConfigs._filter = 1;
+		}
+		else if(chartConfigs._divisions && chartConfigs._divisions.length!==0)
+		{
+			console.log("2");
+			console.log(chartConfigs._divisions.length);
+			chartConfigs._filter = 1;
+
+		}
+		else {
+			chartConfigs._filter = null;
+		}
+	}
+	check(event: any,chartid: string) {
 		console.log(event);
+		let kpi_name = chartid.split('-')[0];
+		console.log(this.kpilist[kpi_name][chartid]._divisions);
+		this.getSirwalaChart([],chartid);
 	}
 	getCharts(kpi: any) {
 		this.chartDataService.getCharts(kpi).subscribe(data => {
 			// for each chart in data, Init chart, add Mapping to chart, add series to chart
 			for(var chart of data){
 				var chartid = this.chartInit(kpi.kpi_name,chart.conf);
-				console.log(chart.data[0]);
 				for(var i =0; i<chart.data.length;i++){
 					this.kpilist[kpi.kpi_name][chartid]._chart.addSeries(chart.data[i]);
 				}
@@ -302,7 +290,7 @@ export class ChartsComponent implements OnInit {
 		this.chartDataService.getKPIs().subscribe(res => {
 			var kpis = res['data'],name;
 			this.kpis = kpis;
-			console.log(kpis);
+			// console.log(kpis);
 			// for each kpi, create kpilist map, getCharts for each KPI. filter charts on kpi.version
 			for(var kpi of kpis){
 				this.getCharts(kpi);
@@ -334,7 +322,7 @@ export class ChartsComponent implements OnInit {
         this.kpilist[kpi_name][chartid]._filteredDivisions = filtered;
 	}
 	division = [{name: "India", type: "Country"},
-				 {name: "East", type: "Zone"},
+				 {name: "East", type: "Zone"},	
 				 {name: "Assam", type: "State"},
 				 {name: "Guwahati", type: "City"},
 				 {name: "GUW", type: "DC"}]
@@ -347,8 +335,8 @@ export class ChartsComponent implements OnInit {
 				this.kpilist[kpi_name][chartid]._sDate = null;
 				this.kpilist[kpi_name][chartid]._eDate = null;
 				this.kpilist[kpi_name][chartid]._maxDate = null;
+				this.getSirwalaChart([],chartid);
 				break;
-			// this.getChart(chartid);
 			case 1:
 				this.kpilist[kpi_name][chartid]._sDate = null;
 				this.kpilist[kpi_name][chartid]._eDate = null;
@@ -361,7 +349,8 @@ export class ChartsComponent implements OnInit {
 	}
 	update(event,chartid: string) {
 		console.log(event);
-		this.getChart(chartid,"datepicker");
+		let kpi_name = chartid.split('-')[0];
+		this.getSirwalaChart(event,chartid);
 	}
 	setMaxDate(id: string) {
 		var kpi_name = id.split('-')[0];

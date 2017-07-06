@@ -31,7 +31,7 @@
                                 (change)="update($event,kpi.kpi_name+'-'+chart)"
                                 ></md2-datepicker>
                             </div>
-                            <div *ngIf="kpilist[kpi.kpi_name][kpi.kpi_name+'-'+chart]._selectedvalue && kpilist[kpi.kpi_name][kpi.kpi_name+'-'+chart]._selectedvalue.id===2" []>
+                            <div *ngIf="kpilist[kpi.kpi_name][kpi.kpi_name+'-'+chart]._selectedvalue && kpilist[kpi.kpi_name][kpi.kpi_name+'-'+chart]._selectedvalue.id===2">
                                 <md2-datepicker name="sDate"
                                 placeholder="Start"
                                 [(ngModel)]="kpilist[kpi.kpi_name][kpi.kpi_name+'-'+chart]._sDate"
@@ -41,10 +41,10 @@
                                 format="d MMMM yy"
                                 touchUi = true
                                 #sdateControl="ngModel"
-                                (change)="setMaxDate($event,kpi.kpi_name+'-'+chart)"></md2-datepicker>
+                                (change)="setMaxDate(kpi.kpi_name+'-'+chart)"></md2-datepicker>
                             </div>
                             <div *ngIf="kpilist[kpi.kpi_name][kpi.kpi_name+'-'+chart]._selectedvalue && kpilist[kpi.kpi_name][kpi.kpi_name+'-'+chart]._selectedvalue.id===2">
-                                <md2-datepicker name="eDate"
+                                <md2-datepicker name="eDate"    
                                 placeholder="End"
                                 [(ngModel)]="kpilist[kpi.kpi_name][kpi.kpi_name+'-'+chart]._eDate"
                                 [required]="true"
@@ -57,7 +57,7 @@
                                 #edateControl="ngModel"
                                 (change)="update($event,kpi.kpi_name+'-'+chart)"></md2-datepicker>
                             </div>
-                            <p-autoComplete [(ngModel)]="kpilist[kpi.kpi_name][kpi.kpi_name+'-'+chart]._divisions" [suggestions]="kpilist[kpi.kpi_name][kpi.kpi_name+'-'+chart]._filteredDivisions" (completeMethod)="filterDivisions($event,kpi.kpi_name,chart)" styleClass="wid100" [minLength]="1" placeholder="Filter" [multiple]="true" field="name" name="divisions" (onSelect)="check($event)">
+                            <p-autoComplete [(ngModel)]="kpilist[kpi.kpi_name][kpi.kpi_name+'-'+chart]._divisions" [suggestions]="kpilist[kpi.kpi_name][kpi.kpi_name+'-'+chart]._filteredDivisions" (completeMethod)="filterDivisions($event,kpi.kpi_name,chart)" styleClass="wid100" [minLength]="1" placeholder="Filter" [multiple]="true" field="name" name="divisions" (onSelect)="check($event,kpi.kpi_name+'-'+chart)" (onUnselect)="check($event,kpi.kpi_name+'-'+chart)">
                             <ng-template let-brand pTemplate="item">
                                 <div class="ui-helper-clearfix" style="border-bottom:1px solid #D5D5D5">
                                     <div style="font-size:18px;float:left;margin:10px 10px 0 0">{{brand.name}}</div>
@@ -73,7 +73,7 @@
                     <div id="{{kpi.kpi_name+'-'+chart}}"></div>
                 </div>
                 <div class="card-footer">
-                    <button class="btn btn-info btn-sm" (click)="getChart(kpi.kpi_name+'-'+chart,'')">Refresh</button>
+                    <button class="btn btn-info btn-sm" (click)="getSirwalaChart($event,kpi.kpi_name+'-'+chart)">Refresh</button>
                 </div>
             </div>
         </div>
