@@ -61,9 +61,11 @@ export class ChartsComponent implements OnInit {
 			t--;
 		}
 
-		var ser = chartConfigs._chart.series;
+		// var ser = chartConfigs._chart.series;
+		console.log(chartConfigs._chart.series);
 		var serieslist = [];
-		for(let s of ser){
+		for(let s of chartConfigs._chart.series){
+			console.log(s);
 			serieslist.push(s.name);
 		}
 		// Wait for _divisions to remove the value on unSelect event
@@ -352,12 +354,16 @@ export class ChartsComponent implements OnInit {
 		let kpi_name = chartid.split('-')[0];
 		this.getSirwalaChart(event,chartid);
 	}
+	setGlobalMaxDate() {
+		this.MAX_DATE = new Date();
+	}
 	setMaxDate(id: string) {
 		var kpi_name = id.split('-')[0];
 		var temp_date = this.kpilist[kpi_name][id]._sDate;
+		var temp2 = new Date();
 		var temp = new Date(temp_date);
 		temp.setDate(temp.getDate() + 31);
-		this.kpilist[kpi_name][id]._maxDate = temp;
+		this.kpilist[kpi_name][id]._maxDate = (temp>temp2)?temp2:temp;
 	}
 	// getPayload(chartid)
 	options = [
@@ -367,8 +373,10 @@ export class ChartsComponent implements OnInit {
 	];
 	kpis: any;
 	drilldownsAdded = 0;
+	MAX_DATE = new Date();
 	kpilist: Map<string,any> = new Map();
-	ngOnInit() {
+	ngOnInit() {	
+		this.MAX_DATE = new Date();
 		this.drilldownsAdded = 0;
 		this.getKPIs();
 	}
