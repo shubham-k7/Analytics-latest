@@ -60,7 +60,7 @@ export class ChartsComponent implements OnInit {
 			list = this.kpilist[kpi_name][chartid]._drilldowns.slice(1,report_type+1);
 		if(event.name){
 			list.push(event.name);
-			chartConfigs._drilldowns.push(event.name);
+			
 		}
 		else{
 			report_type--;
@@ -71,9 +71,12 @@ export class ChartsComponent implements OnInit {
 			serieslist.push(s.name);
 		}
 		// Wait for _divisions to remove the value on unSelect event
-		setTimeout(()=>{
 		this.setFilterflag(chartid);
-		var shallowCopy = { ...chartConfigs,_chart: null,_filteredDivisions: null };
+		setTimeout(()=>{
+		// if(chartConfigs._divisions.length === 0)
+			var shallowCopy = { ...chartConfigs,_chart: null,_filteredDivisions: null };
+		// else
+			// var shallowCopy = { ...chartConfigs,_chart: null,_filteredDivisions: null}; 
 		var payload = {
 					name: list,
 					series_name: serieslist,
@@ -86,6 +89,9 @@ export class ChartsComponent implements OnInit {
 			console.log(payload);
 			this.chartDataService.getChartData(payload).subscribe(series => {
 				var chart = this.kpilist[payload.kpi_id][chartid]._chart;
+				if(event.name) {
+					this.kpilist[payload.kpi_id][chartid]._drilldowns.push(event.name);
+				}
 				chart.hideLoading();
 				while(chart.series.length > 0){
 					chart.series[0].remove();
@@ -151,7 +157,7 @@ export class ChartsComponent implements OnInit {
 	}
 	chartInit(kpi_name: string,conf: any): string{
 		// Do NOT REMOVE this. 
-			var comp = this;        
+		var comp = this;        
 		// It's used inside chart confs to access ChartComponent instance
 		var data = eval('(' + conf + ')');
 		let prevConfig = this.kpilist[kpi_name][data.chart.name];
@@ -252,25 +258,27 @@ export class ChartsComponent implements OnInit {
 		);
 	}
 	setFilterflag(chartid: string) {
-		let kpi_name = chartid.split('-')[0],
-			chartConfigs = this.kpilist[kpi_name][chartid];
-		chartConfigs._filter = null;
-		console.log(chartConfigs);
-		if(chartConfigs._selectedvalue && chartConfigs._selectedvalue.id!==0 && (chartConfigs._mon || chartConfigs._eDate || chartConfigs._sDate))
-		{
-			console.log("1");
-			chartConfigs._filter = 1;
-		}
-		else if(chartConfigs._divisions && chartConfigs._divisions.length!==0)
-		{
-			console.log("2");
-			console.log(chartConfigs._divisions.length);
-			chartConfigs._filter = 1;
-
-		}
-		else {
+		setTimeout(()=>{
+			let kpi_name = chartid.split('-')[0],
+				chartConfigs = this.kpilist[kpi_name][chartid];
 			chartConfigs._filter = null;
-		}
+			console.log(chartConfigs);
+			if(chartConfigs._selectedvalue && chartConfigs._selectedvalue.id!==0 && (chartConfigs._mon || chartConfigs._eDate || chartConfigs._sDate))
+			{
+				console.log("1");
+				chartConfigs._filter = 1;
+			}
+			else if(chartConfigs._divisions && chartConfigs._divisions.length!==0)
+			{
+				console.log("2");
+				console.log(chartConfigs._divisions.length);
+				chartConfigs._filter = 1;
+
+			}
+			else {
+				chartConfigs._filter = null;
+			}
+		},300);
 	}
 	check(event: any,chartid: string) {
 		console.log(event);
@@ -332,7 +340,7 @@ export class ChartsComponent implements OnInit {
 	division = [{name: "India", type: "Country"},
 				 {name: "East", type: "Zone"},	
 				 {name: "Assam", type: "State"},
-				 {name: "Guwahati", type: "City"},
+				 {name: "Ex.guwahati", type: "City"},
 				 {name: "GUW", type: "DC"}]
 	selection(event,chartid: string) {
 		let kpi_name = chartid.split('-')[0];
