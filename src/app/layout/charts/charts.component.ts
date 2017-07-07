@@ -45,27 +45,29 @@ export class ChartsComponent implements OnInit {
 		return payload;
 	}
 
-	getSirwalaChart(event: any,chartid: string) {
+	getNonDrilldownChart(event: any,chartid: string) {
 		let comp = this,
 			temp = chartid.split('-'),
 			kpi_name = temp[0],
 			version_id = temp[1],
 			chartConfigs = this.kpilist[kpi_name][chartid],
-			t = this.kpilist[kpi_name][chartid]._drilldowns.length,
-			list = this.kpilist[kpi_name][chartid]._drilldowns.slice(1,t+1);
+			/** Report type
+			  *	"0" => First time retrieval(without filter).
+			  * _drilldowns.length => Retrieve subsequent Drilldown level data.
+			  * (_drilldowns.length - 1) => Fetch current level data(w || w/o _filter).
+			  */
+			report_type = this.kpilist[kpi_name][chartid]._drilldowns.length,
+			list = this.kpilist[kpi_name][chartid]._drilldowns.slice(1,report_type+1);
 		if(event.name){
 			list.push(event.name);
 			chartConfigs._drilldowns.push(event.name);
 		}
 		else{
-			t--;
+			report_type--;
 		}
 
-		// var ser = chartConfigs._chart.series;
-		console.log(chartConfigs._chart.series);
 		var serieslist = [];
 		for(let s of chartConfigs._chart.series){
-			console.log(s);
 			serieslist.push(s.name);
 		}
 		// Wait for _divisions to remove the value on unSelect event
@@ -75,7 +77,7 @@ export class ChartsComponent implements OnInit {
 		var payload = {
 					name: list,
 					series_name: serieslist,
-					report_type: t.toString(),
+					report_type: report_type.toString(),
 					chartName: chartid,
 					version_ids: [version_id],
 					kpi_id: kpi_name,
@@ -204,7 +206,11 @@ export class ChartsComponent implements OnInit {
 			};
 		return data.chart.name;
 	}
-	
+	/**
+	  *	Deprecated as of 2017-07-07
+	  * This was used during Drilldown and refresh,
+	  * however it is deprecated in Non-Drilldown Sirwala Chart.
+	  */
 	getChart(chartid: string,source: any) {
 		let x = chartid.split('-'),
 			kpi_name = x[0],
@@ -223,7 +229,7 @@ export class ChartsComponent implements OnInit {
 						name: [],
 						series_name:  null,
 						chartConfigs: shallowCopy
-					}
+			};
 		this.chartDataService.getChart(payload).subscribe(data => {
 			var series = data[0].data;
 			var chartid = this.chartInit(kpi_name,data[0].conf);
@@ -270,7 +276,7 @@ export class ChartsComponent implements OnInit {
 		console.log(event);
 		let kpi_name = chartid.split('-')[0];
 		console.log(this.kpilist[kpi_name][chartid]._divisions);
-		this.getSirwalaChart([],chartid);
+		this.getNonDrilldownChart([],chartid);
 	}
 	getCharts(kpi: any) {
 		this.chartDataService.getCharts(kpi).subscribe(data => {
@@ -337,7 +343,7 @@ export class ChartsComponent implements OnInit {
 				this.kpilist[kpi_name][chartid]._sDate = null;
 				this.kpilist[kpi_name][chartid]._eDate = null;
 				this.kpilist[kpi_name][chartid]._maxDate = null;
-				this.getSirwalaChart([],chartid);
+				this.getNonDrilldownChart([],chartid);
 				break;
 			case 1:
 				this.kpilist[kpi_name][chartid]._sDate = null;
@@ -352,7 +358,7 @@ export class ChartsComponent implements OnInit {
 	update(event,chartid: string) {
 		console.log(event);
 		let kpi_name = chartid.split('-')[0];
-		this.getSirwalaChart(event,chartid);
+		this.getNonDrilldownChart(event,chartid);
 	}
 	setGlobalMaxDate() {
 		this.MAX_DATE = new Date();
