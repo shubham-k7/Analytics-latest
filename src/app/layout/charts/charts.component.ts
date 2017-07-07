@@ -165,7 +165,8 @@ export class ChartsComponent implements OnInit {
 			this.kpilist[kpi_name][data.chart.name] = {...prevConfig,_chart: null};
 		}
 		else{
-			this.kpilist[kpi_name][data.chart.name] = {	_chart:  null,
+			this.kpilist[kpi_name][data.chart.name] = {	
+													_chart:  null,
 													_drilldowns: ['All'],
 													_selectedvalue: null,
 													_maxDate: null,
@@ -217,7 +218,7 @@ export class ChartsComponent implements OnInit {
 	  * This was used during Drilldown and refresh,
 	  * however it is deprecated in Non-Drilldown Sirwala Chart.
 	  */
-	getChart(chartid: string,source: any) {
+	getDrilldownChart(chartid: string,source: any) {
 		let x = chartid.split('-'),
 			kpi_name = x[0],
 			version = x[1],
@@ -236,7 +237,7 @@ export class ChartsComponent implements OnInit {
 						series_name:  null,
 						chartConfigs: shallowCopy
 			};
-		this.chartDataService.getChart(payload).subscribe(data => {
+		this.chartDataService.getDrilldownChart(payload).subscribe(data => {
 			var series = data[0].data;
 			var chartid = this.chartInit(kpi_name,data[0].conf);
 			var chart = this.kpilist[kpi_name][chartid]._chart;

@@ -46,7 +46,7 @@ export class ChartDataService {
             console.log(res);
         }).catch(this.handleError);*/
     }
-    getChart(payload: any): Observable<any> {
+    getDrilldownChart(payload: any): Observable<any> {
         var url = 'http://52.70.207.115:8087/api/v1/inscan/report/';
         let headers = new Headers({'content-type': 'application/json'});
         headers.append('Authorization', 'Token 6a408c2bc8db8c8dc151a6390ab631f3c1931f6f');
