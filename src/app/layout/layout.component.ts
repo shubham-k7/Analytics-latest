@@ -14,7 +14,7 @@ export class LayoutComponent implements OnInit {
     ngOnInit() {
         // console.log("hahah");
         if (this.router.url === '') {
-            this.router.navigate(['/dashboard']);
+            this.router.navigate(['/charts']);
         }
     }
 

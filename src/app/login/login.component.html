@@ -13,7 +13,7 @@
                         <input type="password" [(ngModel)]="model.password" name="password" #password="ngModel" class="form-control input-underline input-lg" id="" placeholder="Password" required >
                     </div>
                 </div>
-                <a [class.disabled]="!model.username || !model.password" class="btn rounded-btn" (click)="login()"> Log in </a>
+                <button [class.disabled]="!model.username || !model.password" type = "button" class="btn rounded-btn" (keyup.enter)="onKey($event)" (click)="login()">Log in</button>
                 &nbsp;
             </form>
             <br>

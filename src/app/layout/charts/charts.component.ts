@@ -389,7 +389,7 @@ export class ChartsComponent implements OnInit {
 	kpis: any;
 	drilldownsAdded = 0;
 	MAX_DATE = new Date();
-	kpilist: Map<string,any> = new Map();
+	kpilist: Map<string,any> = new Map<string,any>();
 	ngOnInit() {	
 		this.MAX_DATE = new Date();
 		this.drilldownsAdded = 0;

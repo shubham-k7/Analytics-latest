@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit,HostDecorator, } from '@angular/core';
 import { Router } from '@angular/router';
 import { Message } from 'primeng/primeng';
 
@@ -17,24 +17,26 @@ export class LoginComponent implements OnInit {
 
     ngOnInit() { this.error=[];}
 
+    onKey(event: any){
+        console.log(event);
+    }
     login() {
         this.authenticationService.login(this.model.username,this.model.password)
             .subscribe(result => {
                     if(result===true){
                         this.error=[];
                         this.error.push({severity:'success', summary:'Success: ', detail:'Welcome to Analytics!'});
-                        // setTimeout(400);    
-                        this.router.navigate(['/dashboard']);
+                        this.router.navigate(['/charts']);
                     }
                     else
                     { 
                         this.error=[];
-                        this.error.push({severity:'error', summary:'Error: ', detail:'Validation failed!'}) 
+                        this.error.push({severity:'error', summary:'Error: ', detail:'Validation failed!'});
                     }
                 },
                  (err) => {
                      this.error=[];
-                        this.error.push({severity:'error', summary:'Error: ', detail:'Validation failed!'})                     
+                        this.error.push({severity:'error', summary:'Error: ', detail:'Validation failed!'});                     
                  });
     }
 
