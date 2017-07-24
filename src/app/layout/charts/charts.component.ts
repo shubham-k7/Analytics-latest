@@ -345,15 +345,15 @@ export class ChartsComponent implements OnInit {
 				 {name: "GUW", type: "DC"}]
 	selection(event,chartid: string) {
 		let kpi_name = chartid.split('-')[0];
-		switch(event.id)
+		if(!event){
+			this.kpilist[kpi_name][chartid]._mon = null;
+			this.kpilist[kpi_name][chartid]._eDate = null;
+			this.kpilist[kpi_name][chartid]._sDate = null;
+			this.kpilist[kpi_name][chartid]._maxDate = null;
+			// this.getChart(chartid,"Selection");
+		}
+		switch((event && event.id))
 		{
-			case 0: 
-				this.kpilist[kpi_name][chartid]._mon = null;
-				this.kpilist[kpi_name][chartid]._sDate = null;
-				this.kpilist[kpi_name][chartid]._eDate = null;
-				this.kpilist[kpi_name][chartid]._maxDate = null;
-				this.getNonDrilldownChart([],chartid);
-				break;
 			case 1:
 				this.kpilist[kpi_name][chartid]._sDate = null;
 				this.kpilist[kpi_name][chartid]._eDate = null;

@@ -16,6 +16,7 @@
                         </div>
                         <form class="form-inline my-2 my-lg-0"  style="float: right">
                             <md-select placeholder="Timeline" [(ngModel)]="kpilist[kpi.kpi_name][kpi.kpi_name+'-'+chart]._selectedvalue" (ngModelChange)="selection($event,kpi.kpi_name+'-'+chart)" name="option">
+                            <md-option>None</md-option>
                             <md-option *ngFor="let option of options" [value]="option">{{option.value}}</md-option>
                             </md-select>
                             <div *ngIf="kpilist[kpi.kpi_name][kpi.kpi_name+'-'+chart]._selectedvalue && kpilist[kpi.kpi_name][kpi.kpi_name+'-'+chart]._selectedvalue.id===1">
